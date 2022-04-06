@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!--日志的根目录, 根据需要更改成日志要保存的目录-->
-    <property name="LOG_HOME" value="/home/atguigu/applog"/>
+    <property name="LOG_HOME" value="/opt/software/mock/gmall0924"/>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%msg%n</pattern>
