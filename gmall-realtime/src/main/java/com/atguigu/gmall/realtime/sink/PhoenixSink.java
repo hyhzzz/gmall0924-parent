@@ -56,7 +56,42 @@ public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProces
         checkTable(value);
 
         //2.把这条数据写入到对应的表中
+        writeToPhoenix(value);
 
+    }
+
+    private void writeToPhoenix(Tuple2<JSONObject, TableProcess> value) throws SQLException {
+        JSONObject data = value.f0;
+        TableProcess tp = value.f1;
+        // 拼接一个sql语句
+        // upsert into t(id, name, age) values(?,?,?);
+        StringBuilder sql = new StringBuilder();
+        sql
+                .append("upsert into ")
+                .append(tp.getSinkTable())
+                .append("(")
+                // 拼接字段名
+                .append(tp.getSinkColumns())
+                .append(") values(")
+                //  拼接占位符 有几个字段, 就拼接几个问号
+                .append(tp.getSinkColumns().replaceAll("[^,]+", "?"))
+                .append(")");
+
+        System.out.println("插入语句: " + sql.toString());
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        // 使用数据中的每个字段的值, 给占位符赋值
+        // upsert into t(id, name, age) values(?,?,?);
+        // 取出字段的名字
+        String[] columns = tp.getSinkColumns().split(",");
+        // 列名就是data中的key, 根据key取出数据, 给占位符赋值
+        for (int i = 0; i < columns.length; i++) {
+            String key = columns[i];
+            Object v = data.get(key);
+            ps.setString(i + 1, v == null ? null : v.toString()); // 避免空指针
+        }
+        ps.execute();
+        conn.commit();
+        ps.close();
 
     }
 
