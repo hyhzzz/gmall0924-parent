@@ -64,8 +64,7 @@ abstract public class BaseAppV1 {
         System.setProperty("HADOOP_USER_NAME", "atguigu");
 
 
-        DataStreamSource<String> stream = env.addSource(
-                FlinkSourceUtil.getKafkaSource(groupId, topic));
+        DataStreamSource<String> stream = env.addSource(FlinkSourceUtil.getKafkaSource(groupId, topic));
 
         /**
          * 子类在此抽象方法中完成自己的业务逻辑
@@ -77,7 +76,7 @@ abstract public class BaseAppV1 {
 
         //启动执行环境
         try {
-            env.execute();
+            env.execute(checkpointing);
         } catch (Exception e) {
             e.printStackTrace();
         }

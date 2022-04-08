@@ -11,7 +11,7 @@ import java.util.Properties;
 /**
  * @author coderhyh
  * @create 2022-04-06 23:49
- * kafka工具类
+ * kafka数据源工具类
  */
 public class FlinkSourceUtil {
 
