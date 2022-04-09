@@ -49,7 +49,7 @@ public class DwdLogApp extends BaseAppV1 {
                 4,
                 "DwdLogApp",
                 "DwdLogApp",
-                Constant.TOPIC_DWD_PAGE);
+                Constant.TOPIC_ODS_LOG);
 
     }
 

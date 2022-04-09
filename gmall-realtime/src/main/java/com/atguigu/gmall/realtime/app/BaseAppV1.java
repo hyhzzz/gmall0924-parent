@@ -82,6 +82,7 @@ abstract public class BaseAppV1 {
         }
     }
 
-    protected abstract void run(StreamExecutionEnvironment env, DataStreamSource<String> stream);
+    protected abstract void run(StreamExecutionEnvironment
+                                        env, DataStreamSource<String> stream);
 
 }
