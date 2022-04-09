@@ -49,7 +49,7 @@ public class DwdLogApp extends BaseAppV1 {
                 4,
                 "DwdLogApp",
                 "DwdLogApp",
-                Constant.TOPIC_ODS_LOG);
+                Constant.TOPIC_DWD_PAGE);
 
     }
 
@@ -65,9 +65,9 @@ public class DwdLogApp extends BaseAppV1 {
 
         //2.对数据进行分流   页面日志-->主流   启动日志 曝光日志  -->测输出流
         HashMap<String, DataStream> threeStreams = splitStream(validatedStream);
-        //        threeStreams.get(PAGE).print("page==");
-        //        threeStreams.get(DISPLAY).print("display##");
-        //        threeStreams.get(START).print("start$$");
+        threeStreams.get(PAGE).print("page==");
+        threeStreams.get(DISPLAY).print("display##");
+        threeStreams.get(START).print("start$$");
 
 
         //3.不同的流写入到不同的topic中
