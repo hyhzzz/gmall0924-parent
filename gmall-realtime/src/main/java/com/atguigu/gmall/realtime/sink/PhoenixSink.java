@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.realtime.bean.TableProcess;
 import com.atguigu.gmall.realtime.common.Constant;
 import com.atguigu.gmall.realtime.util.JdbcUtil;
+import com.atguigu.gmall.realtime.util.RedisUtil;
 
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
@@ -15,6 +16,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * @author coderhyh
@@ -25,6 +29,7 @@ public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProces
 
     private Connection conn;
     private ValueState<Boolean> tableCreatedState;
+    private Jedis redisClient;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -37,6 +42,7 @@ public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProces
         tableCreatedState = getRuntimeContext().getState(
                 new ValueStateDescriptor<Boolean>("tableCreatedState", Boolean.class));
 
+        redisClient = RedisUtil.getRedisClient();
 
     }
 
@@ -58,6 +64,32 @@ public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProces
         //2.把这条数据写入到对应的表中
         writeToPhoenix(value);
 
+        //3.更新缓存
+        updateCache(value);
+
+
+    }
+
+    private void updateCache(Tuple2<JSONObject, TableProcess> value) {
+        // 1. 优雅
+        // 1.1 如果存在就更新, 不存在, 就不用操作
+        JSONObject dim = value.f0;
+        TableProcess tp = value.f1;
+
+        // key: table:id
+        String key = tp.getSinkTable() + ":" + dim.getLong("id");
+        if (redisClient.exists(key)) {
+            // 先把字段名变成大写之后, 再去更新
+            JSONObject upperDim = new JSONObject();
+            for (Map.Entry<String, Object> entry : dim.entrySet()) {
+                upperDim.put(entry.getKey().toUpperCase(), entry.getValue());
+            }
+            redisClient.setex(key, 2 * 24 * 60 * 60, upperDim.toJSONString());
+        }
+
+        // 2. 粗暴
+        // 直接把缓存中的数据删除. 将来读到时候读不到, 自然就去数据读取最新的维度
+        //redisClient.del(key);
     }
 
     private void writeToPhoenix(Tuple2<JSONObject, TableProcess> value) throws SQLException {

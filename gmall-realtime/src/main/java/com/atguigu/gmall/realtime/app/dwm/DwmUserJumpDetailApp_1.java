@@ -31,6 +31,7 @@ import java.util.Map;
  */
 public class DwmUserJumpDetailApp_1 extends BaseAppV1 {
     public static void main(String[] args) {
+        //环境初始化
         new DwmUserJumpDetailApp_1().init(2004,
                 4,
                 "DwmUserJumpDetailApp_1",
@@ -38,7 +39,7 @@ public class DwmUserJumpDetailApp_1 extends BaseAppV1 {
                 Constant.TOPIC_DWD_PAGE
         );
     }
-
+    //写具体的业务逻辑
     @Override
     protected void run(StreamExecutionEnvironment env,
                        DataStreamSource<String> stream) {
@@ -78,7 +79,8 @@ public class DwmUserJumpDetailApp_1 extends BaseAppV1 {
         PatternStream<JSONObject> ps = CEP.pattern(keyedStream, pattern);
         // 4. 从模式流中获取匹配到的数据, 或者超时的数据
         SingleOutputStreamOperator<JSONObject> normal = ps.select(
-                new OutputTag<JSONObject>("jump") {},
+                new OutputTag<JSONObject>("jump") {
+                },
                 new PatternTimeoutFunction<JSONObject, JSONObject>() {
                     @Override
                     public JSONObject timeout(Map<String, List<JSONObject>> map,

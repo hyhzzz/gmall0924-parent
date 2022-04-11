@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public class DwmUserJumpDetailApp extends BaseAppV1 {
     public static void main(String[] args) {
+        //环境初始化
         new DwmUserJumpDetailApp().init(2004,
                 4,
                 "DwmUserJumpDetailApp",
@@ -36,7 +37,7 @@ public class DwmUserJumpDetailApp extends BaseAppV1 {
                 Constant.TOPIC_DWD_PAGE
         );
     }
-
+    //写具体的业务逻辑
     @Override
     protected void run(StreamExecutionEnvironment env,
                        DataStreamSource<String> stream) {
